@@ -7,7 +7,9 @@ import Foundation
 protocol StatisticService {
     func store(correct count: Int, total amount: Int)
     var totalAccuracy: Double { get }
-    var gamesCount: Int { get }
+    var totalQuestions: Int { get set }
+    var totalResult: Int { get set }
+    var gamesCount: Int { get set }
     var bestGame: GameRecord { get set }
 }
 
@@ -24,23 +26,9 @@ final class StatisticServiceImplementation: StatisticService {
             bestGame = currentRecord
         }
 
-        let keys = Keys.allCases.filter {
-            $0 != .bestGame
-        }
-        for key in keys {
-            var currentValue = userDefaults.integer(forKey: key.rawValue)
-            switch key {
-            case .correct:
-                currentValue += count
-            case .total:
-                currentValue += amount
-            case .gamesCount:
-                currentValue += 1
-            default:
-                break
-            }
-            userDefaults.set(currentValue, forKey: key.rawValue)
-        }
+        totalQuestions += amount
+        totalResult += count
+        gamesCount += 1
     }
 
     var totalAccuracy: Double {
@@ -49,8 +37,31 @@ final class StatisticServiceImplementation: StatisticService {
         return Double(correct * 100 / total)
     }
 
+    var totalQuestions: Int {
+        get {
+            userDefaults.integer(forKey: Keys.total.rawValue)
+        }
+        set {
+            userDefaults.set(newValue, forKey: Keys.total.rawValue)
+        }
+    }
+
+    var totalResult: Int {
+        get {
+            userDefaults.integer(forKey: Keys.correct.rawValue)
+        }
+        set {
+            userDefaults.set(newValue, forKey: Keys.correct.rawValue)
+        }
+    }
+
     var gamesCount: Int {
-        userDefaults.integer(forKey: Keys.gamesCount.rawValue)
+        get {
+            userDefaults.integer(forKey: Keys.gamesCount.rawValue)
+        }
+        set {
+            userDefaults.set(newValue, forKey: Keys.gamesCount.rawValue)
+        }
     }
 
     var bestGame: GameRecord {

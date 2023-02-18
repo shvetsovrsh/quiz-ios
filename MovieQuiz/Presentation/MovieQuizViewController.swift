@@ -26,13 +26,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private func show(quiz result: QuizResultsViewModel) {
         statisticService.store(correct: correctAnswers, total: questionsAmount)
         let bestGame = statisticService.bestGame
-        let countText = "\nКоличество сыгранных квизов: \(statisticService.gamesCount)"
-        let recordText = "\nРекорд: \(bestGame.correct)/\(questionsAmount) (\(bestGame.date.dateTimeString))"
-        let accuracyText = "\nСредняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%"
+        let messageText = """
+                          \nКоличество сыгранных квизов: \(statisticService.gamesCount)
+                          Рекорд: \(bestGame.correct)/\(questionsAmount) (\(bestGame.date.dateTimeString))
+                          Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
+                          """
 
         let alertModel = AlertModel(
                 title: result.title,
-                message: result.text + countText + recordText + accuracyText,
+                message: result.text + messageText, // countText + recordText + accuracyText,
                 buttonText: result.buttonText,
                 completion: { [weak self] in
                     guard let self = self else {
@@ -78,10 +80,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
 
     override func viewDidLoad() {
+        super.viewDidLoad()
         questionFactory = QuestionFactory(delegate: self)
         questionFactory?.requestNextQuestion()
-        alertPresenter = AlertPresenter(delegate: self)
-        super.viewDidLoad()
+        alertPresenter = AlertPresenter(viewController: self)
     }
 
     // MARK: - QuestionFactoryDelegate

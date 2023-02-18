@@ -6,10 +6,10 @@ import Foundation
 import UIKit
 
 class AlertPresenter {
-    weak var delegate: MovieQuizViewController?
+    weak var viewController: MovieQuizViewController?
 
-    init(delegate: MovieQuizViewController) {
-        self.delegate = delegate
+    init(viewController: MovieQuizViewController) {
+        self.viewController = viewController
     }
 
     func show(alert: AlertModel) {
@@ -18,6 +18,6 @@ class AlertPresenter {
             alert.completion?()
         }
         alertController.addAction(alertAction)
-        delegate?.present(alertController, animated: false, completion: nil)
+        viewController?.present(alertController, animated: false, completion: nil)
     }
 }
