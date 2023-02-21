@@ -5,7 +5,7 @@
 import Foundation
 import UIKit
 
-class AlertPresenter {
+final class AlertPresenter {
     weak var viewController: MovieQuizViewController?
 
     init(viewController: MovieQuizViewController) {

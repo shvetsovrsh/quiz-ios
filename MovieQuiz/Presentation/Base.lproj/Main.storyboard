@@ -116,16 +116,22 @@
                                     </stackView>
                                 </subviews>
                             </stackView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="VVR-h6-nPG">
+                                <rect key="frame" x="197" y="438" width="20" height="20"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="YP Black (iOS)"/>
                         <constraints>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="YpE-dc-R1h" secondAttribute="trailing" constant="20" id="49I-ST-0Zm"/>
+                            <constraint firstItem="VVR-h6-nPG" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="CW4-GT-2c1"/>
                             <constraint firstItem="YpE-dc-R1h" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="Yaz-A6-e91"/>
+                            <constraint firstItem="VVR-h6-nPG" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="Z70-YR-IV2"/>
                             <constraint firstItem="YpE-dc-R1h" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="iAT-5p-DG9"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="VVR-h6-nPG" id="Slw-OX-wpb"/>
                         <outlet property="counterLabel" destination="ITz-DH-OmW" id="9bx-6u-mUi"/>
                         <outlet property="imageView" destination="sKD-Bv-frz" id="cas-Vm-s4l"/>
                         <outlet property="textLabel" destination="uHK-i7-ra5" id="DBd-AC-JRm"/>
