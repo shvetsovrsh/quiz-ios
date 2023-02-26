@@ -1,40 +1,29 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+final class MovieQuizViewController: UIViewController {
     // MARK: - Lifecycle
     @IBOutlet private weak var imageView: UIImageView!
     @IBOutlet private weak var textLabel: UILabel!
     @IBOutlet private weak var counterLabel: UILabel!
     @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
 
-//    private var correctAnswers: Int = 0
 
-    private var questionFactory: QuestionFactoryProtocol?
     private var alertPresenter: AlertPresenter?
     private var statisticService: StatisticService = StatisticServiceImplementation()
-    private let presenter = MovieQuizPresenter()
+    private var presenter: MovieQuizPresenter!
 
-    func didLoadDataFromServer() {
-        activityIndicator.stopAnimating()
-        activityIndicator.isHidden = true
-        questionFactory?.requestNextQuestion()
-    }
 
-    func didFailToLoadData(with error: Error) {
-        showNetworkError(message: error.localizedDescription)
-    }
-
-    private func showLoadingIndicator() {
+    func showLoadingIndicator() {
         activityIndicator.isHidden = false
         activityIndicator.startAnimating()
     }
 
-    private func hideLoadingIndicator() {
+    func hideLoadingIndicator() {
         activityIndicator.stopAnimating()
         activityIndicator.isHidden = true
     }
 
-    private func showNetworkError(message: String) {
+    func showNetworkError(message: String) {
         hideLoadingIndicator()
         let title: String = "Что-то пошло не так("
         //let message: String = "Невозможно загрузить данные"
@@ -44,7 +33,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 return
             }
             self.presenter.restartGame()
-            self.questionFactory?.requestNextQuestion()
         }
         alertPresenter?.show(alert: alertModel)
     }
@@ -77,7 +65,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                         return
                     }
                     self.presenter.restartGame()
-                    self.questionFactory?.requestNextQuestion()
                 })
         alertPresenter?.show(alert: alertModel)
     }
@@ -91,22 +78,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             guard let self = self else {
                 return
             }
-            self.presenter.questionFactory = self.questionFactory
             self.presenter.showNextQuestionOrResults()
         }
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        presenter.viewController = self
-        showLoadingIndicator()
-        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
-        questionFactory?.loadData()
-        questionFactory?.requestNextQuestion()
+        presenter = MovieQuizPresenter(viewController: self)
         alertPresenter = AlertPresenter(viewController: self)
     }
-
-    // MARK: - QuestionFactoryDelegate
 
     func didReceiveNextQuestion(question: QuizQuestion?) {
         presenter.didReceiveNextQuestion(question: question)
