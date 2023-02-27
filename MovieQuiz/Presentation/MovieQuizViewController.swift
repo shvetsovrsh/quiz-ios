@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController {
+final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
     // MARK: - Lifecycle
     @IBOutlet private weak var imageView: UIImageView!
     @IBOutlet private weak var textLabel: UILabel!
@@ -9,9 +9,25 @@ final class MovieQuizViewController: UIViewController {
 
 
     private var alertPresenter: AlertPresenter?
-    private var statisticService: StatisticService = StatisticServiceImplementation()
     private var presenter: MovieQuizPresenter!
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        presenter = MovieQuizPresenter(viewController: self)
+        alertPresenter = AlertPresenter(viewController: self)
+    }
+
+    // MARK: - Actions
+
+    @IBAction private func yesButtonClicked(_ sender: UIButton) {
+        presenter.yesButtonClicked()
+    }
+
+    @IBAction private func noButtonClicked(_ sender: UIButton) {
+        presenter.noButtonClicked()
+    }
+
+    // MARK: - Private functions
 
     func showLoadingIndicator() {
         activityIndicator.isHidden = false
@@ -48,17 +64,10 @@ final class MovieQuizViewController: UIViewController {
     }
 
     func show(quiz result: QuizResultsViewModel) {
-        statisticService.store(correct: presenter.correctAnswers, total: presenter.getQuestionsAmount()) // presenter
-        let bestGame = statisticService.bestGame
-        let messageText = """
-                          \nКоличество сыгранных квизов: \(statisticService.gamesCount)
-                          Рекорд: \(bestGame.correct)/\(presenter.getQuestionsAmount()) (\(bestGame.date.dateTimeString))
-                          Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
-                          """
-
+        let message = presenter.makeResultsMessage()
         let alertModel = AlertModel(
                 title: result.title,
-                message: result.text + messageText,
+                message: result.text + message,
                 buttonText: result.buttonText,
                 completion: { [weak self] in
                     guard let self = self else {
@@ -69,34 +78,9 @@ final class MovieQuizViewController: UIViewController {
         alertPresenter?.show(alert: alertModel)
     }
 
-    func showAnswerResult(isCorrect: Bool) {
-        imageView.layer.borderColor = isCorrect ?
+    func highlightImageBorder(isCorrectAnswer: Bool) {
+        imageView.layer.borderColor = isCorrectAnswer ?
                 UIColor(named: "YP Green (iOS)")?.cgColor :
                 UIColor(named: "YP Red (iOS)")?.cgColor
-        presenter.didAnswer(isCorrectAnswer: isCorrect)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            guard let self = self else {
-                return
-            }
-            self.presenter.showNextQuestionOrResults()
-        }
-    }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        presenter = MovieQuizPresenter(viewController: self)
-        alertPresenter = AlertPresenter(viewController: self)
-    }
-
-    func didReceiveNextQuestion(question: QuizQuestion?) {
-        presenter.didReceiveNextQuestion(question: question)
-    }
-
-    @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        presenter.yesButtonClicked()
-    }
-
-    @IBAction private func noButtonClicked(_ sender: UIButton) {
-        presenter.noButtonClicked()
     }
 }

@@ -8,18 +8,22 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
 
     private let questionsAmount: Int = 10
     private var currentQuestionIndex: Int = 0
-    var correctAnswers: Int = 0
-    var currentQuestion: QuizQuestion?
+    private var correctAnswers: Int = 0
+    private var currentQuestion: QuizQuestion?
 
+    private let statisticService: StatisticService!
     private var questionFactory: QuestionFactoryProtocol?
-    private weak var viewController: MovieQuizViewController?
+    private let viewController: MovieQuizViewControllerProtocol?
 
-    init(viewController: MovieQuizViewController) {
+    init(viewController: MovieQuizViewControllerProtocol = MovieQuizViewController()) {
         self.viewController = viewController
+        statisticService = StatisticServiceImplementation()
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         questionFactory?.loadData()
         viewController.showLoadingIndicator()
     }
+
+    // MARK: - QuestionFactoryDelegate
 
     func didLoadDataFromServer() {
         viewController?.hideLoadingIndicator()
@@ -76,7 +80,13 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
 
     private func proceedWithAnswer(isCorrect: Bool) {
         didAnswer(isCorrectAnswer: isCorrect)
-        viewController?.showAnswerResult(isCorrect: isCorrect)
+        viewController?.highlightImageBorder(isCorrectAnswer: isCorrect)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self = self else {
+                return
+            }
+            self.proceedToNextQuestionOrResults()
+        }
     }
 
     func didReceiveNextQuestion(question: QuizQuestion?) {
@@ -90,7 +100,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         }
     }
 
-    func showNextQuestionOrResults() {
+    func proceedToNextQuestionOrResults() {
         guard isNotLastQuestion() else {
             let result = QuizResultsViewModel(
                     title: "Этот раунд окончен!",
@@ -101,5 +111,16 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         }
         switchToNextQuestion()
         questionFactory?.requestNextQuestion()
+    }
+
+    func makeResultsMessage() -> String {
+        statisticService.store(correct: correctAnswers, total: getQuestionsAmount())
+        let bestGame = statisticService.bestGame
+        let messageText = """
+                          \nКоличество сыгранных квизов: \(statisticService.gamesCount)
+                          Рекорд: \(bestGame.correct)/\(getQuestionsAmount()) (\(bestGame.date.dateTimeString))
+                          Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
+                          """
+        return messageText
     }
 }
