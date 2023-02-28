@@ -15,6 +15,7 @@ final class MovieQuizUITests: XCTestCase {
         app = XCUIApplication()
         app.launch()
         continueAfterFailure = false
+        sleep(2) // low-speed internet delay
     }
 
     override func tearDownWithError() throws {
@@ -24,7 +25,6 @@ final class MovieQuizUITests: XCTestCase {
     }
 
     func testYesButton() {
-        sleep(3)
         let firstPoster = app.images["Poster"]
         let firstPosterData = firstPoster.screenshot().pngRepresentation
 
@@ -34,14 +34,13 @@ final class MovieQuizUITests: XCTestCase {
         let secondPoster = app.images["Poster"]
         let secondPosterData = secondPoster.screenshot().pngRepresentation
 
-        XCTAssertNotEqual(firstPoster, secondPoster)
+        XCTAssertNotEqual(firstPosterData, secondPosterData)
 
         let indexLabel = app.staticTexts["Index"]
         XCTAssertEqual(indexLabel.label, "2/10")
     }
 
     func testNoButton() {
-        sleep(3)
         let firstPoster = app.images["Poster"]
         let firstPosterData = firstPoster.screenshot().pngRepresentation
 
@@ -51,14 +50,13 @@ final class MovieQuizUITests: XCTestCase {
         let secondPoster = app.images["Poster"]
         let secondPosterData = secondPoster.screenshot().pngRepresentation
 
-        XCTAssertNotEqual(firstPoster, secondPoster)
+        XCTAssertNotEqual(firstPosterData, secondPosterData)
 
         let indexLabel = app.staticTexts["Index"]
         XCTAssertEqual(indexLabel.label, "2/10")
     }
 
     func testGameFinish() {
-        sleep(2)
         let buttons: [String] = ["Yes", "No"]
         for _ in 0...9 {
             let button = buttons.randomElement() ?? "Yes"
@@ -75,7 +73,6 @@ final class MovieQuizUITests: XCTestCase {
     }
 
     func testAlertDismiss() {
-        sleep(2)
         let buttons: [String] = ["Yes", "No"]
         for _ in 0...9 {
             let button = buttons.randomElement() ?? "Yes"

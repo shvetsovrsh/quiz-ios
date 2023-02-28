@@ -10,21 +10,29 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
 
     private var alertPresenter: AlertPresenter?
     private var presenter: MovieQuizPresenter!
+    private let feedbackGenerator = UINotificationFeedbackGenerator()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         presenter = MovieQuizPresenter(viewController: self)
         alertPresenter = AlertPresenter(viewController: self)
+        feedbackGenerator.prepare()
     }
 
     // MARK: - Actions
 
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        presenter.yesButtonClicked()
+        sender.isEnabled = false
+        presenter.yesButtonClicked(completion: { [weak self] in
+            sender.isEnabled = true
+        })
     }
 
     @IBAction private func noButtonClicked(_ sender: UIButton) {
-        presenter.noButtonClicked()
+        sender.isEnabled = false
+        presenter.noButtonClicked(completion: { [weak self] in
+            sender.isEnabled = true
+        })
     }
 
     // MARK: - Private functions
@@ -82,5 +90,11 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
         imageView.layer.borderColor = isCorrectAnswer ?
                 UIColor(named: "YP Green (iOS)")?.cgColor :
                 UIColor(named: "YP Red (iOS)")?.cgColor
+    }
+
+    func generateAnswerFeedback(isCorrectAnswer: Bool) {
+        isCorrectAnswer ?
+                feedbackGenerator.notificationOccurred(.success) :
+                feedbackGenerator.notificationOccurred(.error)
     }
 }

@@ -21,6 +21,10 @@ final class MovieQuizViewControllerMock: MovieQuizViewControllerProtocol {
 
     }
 
+    func generateAnswerFeedback(isCorrectAnswer: Bool) {
+
+    }
+
     func showLoadingIndicator() {
 
     }

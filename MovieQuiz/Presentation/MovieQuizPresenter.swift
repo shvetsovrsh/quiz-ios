@@ -58,40 +58,43 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
                 questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
     }
 
-    func yesButtonClicked() {
-        didAnswer(isYes: true)
+    func yesButtonClicked(completion: @escaping () -> Void) {
+        didAnswer(isYes: true, completion: completion)
     }
 
-    func noButtonClicked() {
-        didAnswer(isYes: false)
+    func noButtonClicked(completion: @escaping () -> Void) {
+        didAnswer(isYes: false, completion: completion)
     }
 
     func didAnswer(isCorrectAnswer: Bool) {
         correctAnswers += isCorrectAnswer ? 1 : 0
     }
 
-    private func didAnswer(isYes: Bool) {
+    private func didAnswer(isYes: Bool, completion: @escaping () -> Void) {
         guard let currentQuestion = currentQuestion else {
             return
         }
         let isCorrect = isYes ? currentQuestion.correctAnswer : !currentQuestion.correctAnswer
-        proceedWithAnswer(isCorrect: isCorrect)
+        proceedWithAnswer(isCorrect: isCorrect, completion: completion)
     }
 
-    private func proceedWithAnswer(isCorrect: Bool) {
+    private func proceedWithAnswer(isCorrect: Bool, completion: @escaping () -> Void) {
         didAnswer(isCorrectAnswer: isCorrect)
         viewController?.highlightImageBorder(isCorrectAnswer: isCorrect)
+        viewController?.generateAnswerFeedback(isCorrectAnswer: isCorrect)
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else {
                 return
             }
             self.proceedToNextQuestionOrResults()
+            completion()
         }
     }
 
     func didReceiveNextQuestion(question: QuizQuestion?) {
         guard let question = question else {
-            fatalError("no questions")
+            assertionFailure("no questions")
+            return
         }
         currentQuestion = question
         let viewModel = convert(model: question)
